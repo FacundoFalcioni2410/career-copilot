@@ -154,7 +154,7 @@ export default function SkillsSection() {
           {skills.length === 0 ? (
             <p className="text-sm text-gray-600">No skills added yet.</p>
           ) : (
-            <div className="flex flex-col gap-5">
+            <div className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
               {groupByCategory(skills).map(([category, group]) => (
                 <div key={category}>
                   <h3 className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-500">
