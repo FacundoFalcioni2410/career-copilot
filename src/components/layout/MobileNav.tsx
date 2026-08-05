@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import NavLinks from "@/components/layout/NavLinks";
+import LogoutButton from "@/components/layout/LogoutButton";
 
 export default function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
@@ -29,8 +30,9 @@ export default function MobileNav() {
       </div>
 
       {isOpen && (
-        <div className="border-b border-gray-200 bg-white px-4 py-3">
+        <div className="flex flex-col gap-1 border-b border-gray-200 bg-white px-4 py-3">
           <NavLinks onNavigate={() => setIsOpen(false)} />
+          <LogoutButton />
         </div>
       )}
     </div>

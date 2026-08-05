@@ -1,5 +1,6 @@
 import NavLinks from "@/components/layout/NavLinks";
 import MobileNav from "@/components/layout/MobileNav";
+import LogoutButton from "@/components/layout/LogoutButton";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
@@ -10,8 +11,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             Career Copilot
           </span>
         </div>
-        <div className="flex-1 px-2 py-3">
+        <div className="flex flex-1 flex-col justify-between px-2 py-3">
           <NavLinks />
+          <LogoutButton />
         </div>
       </aside>
 
