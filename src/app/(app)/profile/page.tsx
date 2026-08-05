@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import PageHeader from "@/components/layout/PageHeader";
 import ProfileForm from "@/components/profile/ProfileForm";
 import ExperienceSection from "@/components/profile/ExperienceSection";
+import SkillsSection from "@/components/profile/SkillsSection";
 import { ApiError } from "@/lib/api";
 import {
   createProfile,
@@ -193,6 +194,7 @@ export default function ProfilePage() {
       )}
 
       {profile && <ExperienceSection />}
+      {profile && <SkillsSection />}
     </div>
   );
 }
