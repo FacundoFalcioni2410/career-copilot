@@ -32,8 +32,23 @@ export default function MatchAnalysis({
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [viewingId, setViewingId] = useState<number | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
   const sectionRef = useRef<HTMLDivElement>(null);
+  const historyRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isHistoryOpen) return;
+
+    function handleClickOutside(event: MouseEvent) {
+      if (!historyRef.current?.contains(event.target as Node)) {
+        setIsHistoryOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isHistoryOpen]);
 
   useEffect(() => {
     let cancelled = false;
@@ -87,6 +102,7 @@ export default function MatchAnalysis({
       const result = await getAnalysis(applicationId, id);
       setAnalyses((prev) => prev.map((a) => (a.id === id ? result : a)));
       setDisplayedId(id);
+      setIsHistoryOpen(false);
     } catch (err) {
       setActionError(
         err instanceof ApiError ? err.message : "Failed to load analysis."
@@ -97,27 +113,71 @@ export default function MatchAnalysis({
   }
 
   const displayed = analyses.find((a) => a.id === displayedId) ?? null;
-  const history = analyses.filter((a) => a.id !== displayedId);
 
   return (
-    <div ref={sectionRef} className="mt-10 scroll-mt-6 border-t border-gray-200 pt-6">
+    <div ref={sectionRef} className="scroll-mt-6">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-base font-medium text-gray-900">
           Match analysis
         </h2>
         {loadStatus === "ready" && (
-          <button
-            type="button"
-            onClick={handleAnalyze}
-            disabled={isAnalyzing}
-            className="rounded bg-gray-900 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
-          >
-            {isAnalyzing
-              ? "Analyzing..."
-              : analyses.length > 0
-                ? "Re-analyze"
-                : "Analyze match"}
-          </button>
+          <div className="flex items-center gap-2">
+            {analyses.length > 1 && (
+              <div ref={historyRef} className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsHistoryOpen((open) => !open)}
+                  className="rounded border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+                >
+                  History ({analyses.length})
+                </button>
+                {isHistoryOpen && (
+                  <div className="absolute right-0 z-20 mt-1 w-72 rounded border border-gray-200 bg-white shadow-sm">
+                    <div className="max-h-72 divide-y divide-gray-200 overflow-y-auto">
+                      {analyses.map((analysis) => {
+                        const isActive = analysis.id === displayedId;
+                        return (
+                          <button
+                            key={analysis.id}
+                            type="button"
+                            onClick={() => handleViewHistory(analysis.id)}
+                            disabled={viewingId === analysis.id || isActive}
+                            className={`flex w-full items-center justify-between gap-4 px-3 py-2 text-left text-sm disabled:cursor-default ${
+                              isActive
+                                ? "bg-gray-50 font-medium text-gray-900"
+                                : "text-gray-700 hover:bg-gray-50"
+                            }`}
+                          >
+                            <span>
+                              {viewingId === analysis.id
+                                ? "Loading..."
+                                : formatHistoryTimestamp(analysis.created_at)}
+                              {isActive && " · Current"}
+                            </span>
+                            <span className={isActive ? "text-gray-700" : "text-gray-500"}>
+                              {analysis.match_score}%
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={handleAnalyze}
+              disabled={isAnalyzing}
+              className="rounded bg-gray-900 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
+            >
+              {isAnalyzing
+                ? "Analyzing..."
+                : analyses.length > 0
+                  ? "Re-analyze"
+                  : "Analyze match"}
+            </button>
+          </div>
         )}
       </div>
 
@@ -299,34 +359,6 @@ export default function MatchAnalysis({
                   </ul>
                 </div>
               )}
-            </div>
-          )}
-
-          {history.length > 0 && (
-            <div className="mt-4">
-              <h3 className="mb-2 text-sm font-medium text-gray-900">
-                Previous analyses
-              </h3>
-              <div className="divide-y divide-gray-200 border-t border-gray-200">
-                {history.map((analysis) => (
-                  <button
-                    key={analysis.id}
-                    type="button"
-                    onClick={() => handleViewHistory(analysis.id)}
-                    disabled={viewingId === analysis.id}
-                    className="flex w-full items-center justify-between gap-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-                  >
-                    <span>
-                      {viewingId === analysis.id
-                        ? "Loading..."
-                        : formatHistoryTimestamp(analysis.created_at)}
-                    </span>
-                    <span className="text-gray-500">
-                      {analysis.match_score}%
-                    </span>
-                  </button>
-                ))}
-              </div>
             </div>
           )}
         </div>
