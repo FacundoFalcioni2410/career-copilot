@@ -6,6 +6,7 @@ import ProfileForm from "@/components/profile/ProfileForm";
 import ExperienceSection from "@/components/profile/ExperienceSection";
 import EducationSection from "@/components/profile/EducationSection";
 import SkillsSection from "@/components/profile/SkillsSection";
+import ProjectsSection from "@/components/profile/ProjectsSection";
 import { ApiError } from "@/lib/api";
 import {
   createProfile,
@@ -197,6 +198,7 @@ export default function ProfilePage() {
       {profile && <ExperienceSection />}
       {profile && <EducationSection />}
       {profile && <SkillsSection />}
+      {profile && <ProjectsSection />}
     </div>
   );
 }
