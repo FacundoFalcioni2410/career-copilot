@@ -1,28 +1,45 @@
 import { api } from "@/lib/api";
 
-export type Recommendation = "strong_apply" | "apply" | "maybe" | "skip";
-
-export type Evidence = {
-  requirement: string;
-  evidence: string;
+export type RequirementEvidence = {
+  id: number;
+  source_type: string;
+  source: string;
+  detail: string;
 };
 
-export type PartialMatch = {
+export type RequirementAnalysis = {
+  id: number;
   requirement: string;
-  evidence: string;
-  gap: string;
+  importance: string;
+  status: string;
+  explanation: string;
+  evidence: RequirementEvidence[];
 };
 
 export type JobAnalysis = {
+  id: number;
+  job_application_id: number;
   match_score: number;
-  recommendation: Recommendation;
+  recommendation: string;
   summary: string;
-  strong_matches: Evidence[];
-  partial_matches: PartialMatch[];
-  missing_requirements: string[];
-  cv_suggestions: string[];
+  strengths: string[];
+  gaps: string[];
+  cv_suggestions_supported: string[];
+  cv_suggestions_to_verify: string[];
+  created_at: string;
+  requirements: RequirementAnalysis[];
 };
 
-export function analyzeApplication(id: number) {
-  return api.post<JobAnalysis>(`/applications/${id}/analyze`);
+export function analyzeApplication(applicationId: number) {
+  return api.post<JobAnalysis>(`/applications/${applicationId}/analyze`);
+}
+
+export function listAnalyses(applicationId: number) {
+  return api.get<JobAnalysis[]>(`/applications/${applicationId}/analyses`);
+}
+
+export function getAnalysis(applicationId: number, analysisId: number) {
+  return api.get<JobAnalysis>(
+    `/applications/${applicationId}/analyses/${analysisId}`
+  );
 }
